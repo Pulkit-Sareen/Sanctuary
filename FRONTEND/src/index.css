@@ -1,0 +1,110 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-sanctuary-blue: #afcbff;
+  --color-sanctuary-warm: #f5e9e2;
+  --color-sanctuary-lavender: #cdb4db;
+  --color-sanctuary-text: #333333;
+  --color-sanctuary-muted: #5a5a5a;
+  --color-sanctuary-neutral: #f7f7f7;
+  --color-sanctuary-teal: #a8dadc;
+  --color-sanctuary-card: #faf8f6;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply m-0 min-h-svh bg-[#faf9f7] font-sans text-[#333333];
+    font-feature-settings: 'kern' 1;
+  }
+
+  #root {
+    @apply min-h-svh w-full max-w-none;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wave-bar {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes cta-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-delay-100 {
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-delay-300 {
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.wave-bar {
+  transform-origin: bottom;
+  animation: wave-bar 0.9s ease-in-out infinite;
+}
+
+.cta-arrow {
+  display: inline-block;
+  animation: cta-arrow 1.6s ease-in-out infinite;
+}
