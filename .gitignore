@@ -1,5 +1,6 @@
 # Python
-backend/venv/
+venv/
+.venv/
 **/__pycache__/
 *.py[cod]
 *.pyo
@@ -11,3 +12,6 @@ FRONTEND/node_modules/
 .env
 FRONTEND/.env
 FRONTEND/.env.local
+.env
+.vscode
+trauma_survivors/__pycache__
