@@ -12,15 +12,30 @@ import shutil
 import os
 
 from pymongo import MongoClient # type: ignore
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 
 app = FastAPI()
+
+_cors = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+).split(",")
+_cors_origins = [o.strip() for o in _cors if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(session_router)
 
 # =========================
 # DATABASE CONFIG
 # =========================
 
-MONGO_URI = "mongodb://localhost:27017"  # Replace with Atlas later
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["testimony_db"]
 sessions_collection = db["sessions"]
