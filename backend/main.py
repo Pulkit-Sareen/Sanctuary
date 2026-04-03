@@ -1,18 +1,20 @@
 # =========================
 # FASTAPI BACKEND (MVP)
 # =========================
+from routes.session import router as session_router
 
-from fastapi import FastAPI, UploadFile, File
-from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile, File # type: ignore
+from pydantic import BaseModel # type: ignore
 from typing import Dict, Any
 from datetime import datetime
 import uuid
 import shutil
 import os
 
-from pymongo import MongoClient
+from pymongo import MongoClient # type: ignore
 
 app = FastAPI()
+app.include_router(session_router)
 
 # =========================
 # DATABASE CONFIG
