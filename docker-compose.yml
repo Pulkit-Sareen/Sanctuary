@@ -1,0 +1,47 @@
+# React app lives in ./FRONTEND (Vite on 5173). If you prefer a lowercase "frontend/"
+# folder, close your IDE and run: git mv FRONTEND frontend
+# then change the frontend service build context below to ./frontend
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 8
+      start_period: 15s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

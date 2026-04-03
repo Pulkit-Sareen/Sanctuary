@@ -3,3 +3,11 @@ backend/venv/
 **/__pycache__/
 *.py[cod]
 *.pyo
+
+# Node (local npm install)
+FRONTEND/node_modules/
+
+# Env
+.env
+FRONTEND/.env
+FRONTEND/.env.local
