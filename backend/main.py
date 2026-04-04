@@ -1,21 +1,35 @@
-# =========================
-# FASTAPI BACKEND (MVP)
-# =========================
-from fastapi import FastAPI, UploadFile, File # type: ignore
-from pydantic import BaseModel # type: ignore
-from typing import Dict, Any
-from datetime import datetime
-import uuid
-import shutil
+from __future__ import annotations
+
+import asyncio
 import os
-from fastapi import WebSocket
-from pymongo import MongoClient # type: ignore
-from fastapi.middleware.cors import CORSMiddleware # type: ignore
-from routes.session import router as session_router
+import sys
+import uuid
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from pymongo import MongoClient
+
+# Make local model package importable: /model/trauma_ai
+ROOT_DIR = Path(__file__).resolve().parents[1]
+MODEL_DIR = ROOT_DIR / "model"
+if MODEL_DIR.exists():
+    sys.path.insert(0, str(MODEL_DIR))
+
+ConversationEngine = None
+EngineConfig = None
+_engine_init_error = None
+
+try:
+    from trauma_ai import ConversationEngine, EngineConfig  # type: ignore
+except Exception as exc:  # pragma: no cover
+    _engine_init_error = str(exc)
 
 
 app = FastAPI()
-app.include_router(session_router, prefix="/session")
 
 _cors = os.environ.get(
     "CORS_ORIGINS",
@@ -30,263 +44,233 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # =========================
 # DATABASE CONFIG
 # =========================
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://host.docker.internal:27017")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["trauma_db"]
 sessions_collection = db["sessions"]
-try:
-    client.admin.command('ping')
-    print("✅ MongoDB connected successfully")
-except Exception as e:
-    print("❌ MongoDB connection failed:", e)
-
-SAMPLE_QUESTIONS = [
-    "Where did the incident occur?",
-    "When did this happen?",
-    "Who else was present there?",
-    "What happened right after this?",
-]
-
-# =========================
-# MOCK SERVICES (REPLACE LATER)
-# =========================
-
-def mock_speech_to_text(file_path: str) -> str:
-    """
-    Replace with Whisper API later
-    """
-    return "car"  # dummy output
-
-
-def mock_emotion_detection(file_path: str) -> str:
-    """
-    Replace with real emotion model later
-    """
-    return "neutral"
-
-
-def mock_llm_service(data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Replace with OpenAI / LLM API later
-    """
-    prev_json = data.get("previous_json", {})
-
-    # Simple demo logic
-    updated_json = prev_json.copy()
-
-    if "location" not in updated_json:
-        updated_json["location"] = {
-            "type": data["transcript"],
-            "details": {}
-        }
-    else:
-        # Add dummy detail
-        updated_json["location"]["details"]["color"] = "red"
-
-    question_index = data.get("question_index", 0)
-    next_index = min(question_index + 1, len(SAMPLE_QUESTIONS) - 1)
-
-    return {
-        "updated_json": updated_json,
-        "confidence": {"location": 0.7},
-        "completeness_score": 0.5,
-        "next_question": SAMPLE_QUESTIONS[next_index],
-        "next_question_index": next_index,
-    }
 
 
 # =========================
-# REQUEST MODELS
+# ENGINE SETUP
 # =========================
+
+engine = None
+if ConversationEngine and EngineConfig:
+    try:
+        engine = ConversationEngine(
+            EngineConfig(
+                mode=os.environ.get("TRAUMA_ENGINE_MODE", "offline"),
+                llm_provider=os.environ.get("LLM_PROVIDER", "openai"),
+                llm_api_key=os.environ.get("LLM_API_KEY"),
+                llm_model=os.environ.get("LLM_MODEL", "gpt-4o"),
+            )
+        )
+    except Exception as exc:  # pragma: no cover
+        _engine_init_error = str(exc)
+
 
 class StartSessionResponse(BaseModel):
     session_id: str
+
+
+class SubmitTextRequest(BaseModel):
+    message: str
+
 
 class ConnectionManager:
     def __init__(self):
         self.active_connections: dict[str, WebSocket] = {}
 
-    async def connect(self, session_id: str, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections[session_id] = websocket
-
     def disconnect(self, session_id: str):
         self.active_connections.pop(session_id, None)
 
-    async def send_update(self, session_id: str, data: dict):
+    async def send_update(self, session_id: str, data: dict[str, Any]):
         if session_id in self.active_connections:
             await self.active_connections[session_id].send_json(data)
 
+
 manager = ConnectionManager()
 
-# =========================
-# ROUTES
-# =========================
 
-import asyncio
+def normalize_question(text: Any) -> str:
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+    return "Please continue."
+
+
+def ensure_engine_session(session: dict[str, Any]) -> tuple[str | None, str | None]:
+    """
+    Returns (engine_session_id, greeting_if_new_session).
+    """
+    if not engine:
+        return None, None
+
+    existing = session.get("engine_session_id")
+    if isinstance(existing, str) and existing and engine.get_session(existing):
+        return existing, None
+
+    engine_session_id, greeting = engine.start_session()
+    return engine_session_id, greeting
+
 
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
-    await websocket.accept()  # ✅ accept FIRST (important)
+    await websocket.accept()
 
     try:
         manager.active_connections[session_id] = websocket
-
-        # ✅ SAFELY fetch session
         session = sessions_collection.find_one({"session_id": session_id})
 
         if session:
-            await websocket.send_json({
-                "type": "question_update",
-                "question": session.get("current_question", "Please continue.")
-            })
+            await websocket.send_json(
+                {
+                    "type": "question_update",
+                    "question": normalize_question(session.get("current_question")),
+                }
+            )
         else:
-            await websocket.send_json({
-                "type": "error",
-                "message": "Session not found"
-            })
+            await websocket.send_json({"type": "error", "message": "Session not found"})
 
-        # ✅ keep connection alive
         while True:
             await asyncio.sleep(1)
 
-    except Exception as e:
-        print("WebSocket error:", e)
+    except Exception as exc:  # pragma: no cover
+        print("WebSocket error:", exc)
 
     finally:
         manager.disconnect(session_id)
+
 
 @app.post("/start-session", response_model=StartSessionResponse)
 def start_session():
     session_id = str(uuid.uuid4())
 
+    current_question = "Please share what happened, in your own words."
+    engine_session_id = None
+
+    if engine:
+        try:
+            engine_session_id, greeting = engine.start_session()
+            current_question = normalize_question(greeting)
+        except Exception as exc:  # pragma: no cover
+            print("Engine start_session error:", exc)
+
     session_data = {
         "session_id": session_id,
+        "engine_session_id": engine_session_id,
         "created_at": datetime.utcnow(),
-        "memory": {},  # structured JSON
+        "memory": {},
         "history": [],
-        "question_index": 0,
-        "current_question": SAMPLE_QUESTIONS[0],
+        "current_question": current_question,
     }
 
     sessions_collection.insert_one(session_data)
-
     return {"session_id": session_id}
 
 
 @app.get("/next-question/{session_id}")
 def get_next_question(session_id: str):
     session = sessions_collection.find_one({"session_id": session_id})
-
     if not session:
         return {"error": "Session not found"}
 
-    return {
-        "question": session.get("current_question", "Please continue.")
-    }
+    return {"question": normalize_question(session.get("current_question"))}
 
 
 @app.post("/submit-answer/{session_id}")
-async def submit_answer(session_id: str, file: UploadFile = File(...)):
+async def submit_answer(session_id: str, payload: SubmitTextRequest):
     session = sessions_collection.find_one({"session_id": session_id})
-
     if not session:
         return {"error": "Session not found"}
 
-    # =========================
-    # SAVE AUDIO FILE
-    # =========================
-    file_location = f"temp_{uuid.uuid4()}.wav"
+    message = payload.message.strip()
+    if not message:
+        return {"error": "Message cannot be empty"}
 
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    next_question = "Thank you for sharing. Please continue when you are ready."
+    updated_json: dict[str, Any] = session.get("memory", {})
+    mode_used = "fallback"
+    phase = None
 
-    # =========================
-    # PARALLEL LOGIC (SIMULATED)
-    # =========================
-    transcript = mock_speech_to_text(file_location)
-    emotion = mock_emotion_detection(file_location)
+    engine_session_id, greeting_if_created = ensure_engine_session(session)
+    if greeting_if_created and not session.get("current_question"):
+        sessions_collection.update_one(
+            {"session_id": session_id},
+            {"$set": {"current_question": normalize_question(greeting_if_created)}},
+        )
 
-    # =========================
-    # CALL LLM (MOCK)
-    # =========================
-    llm_input = {
-        "transcript": transcript,
-        "emotion": emotion,
-        "previous_json": session.get("memory", {}),
-        "question": session.get("current_question"),
-        "question_index": session.get("question_index", 0),
-    }
+    if engine and engine_session_id:
+        try:
+            engine_response = engine.process_message(engine_session_id, message)
+            next_question = normalize_question(engine_response.response_text)
+            updated_json = engine.get_testimony(engine_session_id)
+            mode_used = engine_response.mode_used or "offline"
+            phase_value = engine_response.phase
+            phase = getattr(phase_value, "value", str(phase_value))
+        except Exception as exc:  # pragma: no cover
+            print("Engine process_message error:", exc)
+            next_question = (
+                "I heard you. Could you share a little more detail about what happened next?"
+            )
 
-    llm_output = mock_llm_service(llm_input)
-
-    updated_json = llm_output["updated_json"]
-    next_question = llm_output["next_question"]
-    next_question_index = llm_output["next_question_index"]
-
-    # =========================
-    # UPDATE DATABASE
-    # =========================
     sessions_collection.update_one(
         {"session_id": session_id},
         {
             "$set": {
+                "engine_session_id": engine_session_id,
                 "memory": updated_json,
                 "current_question": next_question,
-                "question_index": next_question_index,
+                "last_updated": datetime.utcnow(),
             },
             "$push": {
                 "history": {
-                    "transcript": transcript,
-                    "emotion": emotion,
-                    "timestamp": datetime.utcnow()
+                    "user_message": message,
+                    "assistant_question": next_question,
+                    "mode_used": mode_used,
+                    "phase": phase,
+                    "timestamp": datetime.utcnow(),
                 }
-            }
-        }
+            },
+        },
     )
 
-    # delete temp file
-    os.remove(file_location)
+    await manager.send_update(
+        session_id,
+        {
+            "type": "question_update",
+            "question": next_question,
+        },
+    )
 
-    await manager.send_update(session_id, {
-    "type": "question_update",
-    "question": next_question
-})
     return {
-        "transcript": transcript,
-        "emotion": emotion,
-        "updated_memory": updated_json,
         "next_question": next_question,
-        "status": "updated"
+        "mode_used": mode_used,
+        "phase": phase,
+        "status": "updated",
+        "engine_available": bool(engine),
+        "engine_init_error": _engine_init_error,
     }
 
 
 @app.get("/final-testimony/{session_id}")
 def get_final_testimony(session_id: str):
     session = sessions_collection.find_one({"session_id": session_id})
-
     if not session:
         return {"error": "Session not found"}
 
     structured_data = session.get("memory", {})
-
-    # =========================
-    # MOCK FINAL GENERATION
-    # =========================
-    final_text = f"The incident details are as follows: {structured_data}"
+    final_text = (
+        structured_data.get("narrative_summary")
+        if isinstance(structured_data, dict)
+        else None
+    ) or f"The incident details are as follows: {structured_data}"
 
     return {
         "structured_data": structured_data,
-        "final_testimony": final_text
+        "final_testimony": final_text,
     }
-
-
-# =========================
-# RUN SERVER
-# =========================
-# Run using:
-# uvicorn main:app --reload

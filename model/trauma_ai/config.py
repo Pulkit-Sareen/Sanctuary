@@ -24,7 +24,7 @@ class EngineConfig:
     llm_model: str = "gpt-4o"           # or "gemini-2.0-flash"
     llm_temperature: float = 0.4
     llm_max_tokens: int = 1024
-
+ 
     # --- NLP Settings ---------------------------------------------------
     spacy_model: str = "en_core_web_sm"
 

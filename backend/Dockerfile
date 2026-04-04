@@ -8,6 +8,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY model/requirements.txt model-requirements.txt
+RUN pip install --no-cache-dir -r model-requirements.txt
+
+COPY model/ ./model/
 COPY backend/ .
 
 EXPOSE 8000
