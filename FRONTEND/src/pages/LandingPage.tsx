@@ -100,15 +100,15 @@ export function LandingPage() {
               Explore support, resources, and recovery tools designed for your
               journey.
             </p>
-            <a
-              href="#feature-grid"
+            <Link
+              to="/support-hub"
               className="inline-flex items-center gap-2 self-start rounded-full bg-white/70 px-5 py-3 text-sm font-medium text-[#4a3f55] shadow-sm backdrop-blur-sm transition hover:bg-white hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b89bc9]"
             >
               Browse resources
               <span className="cta-arrow" aria-hidden>
                 →
               </span>
-            </a>
+            </Link>
           </article>
         </section>
 
@@ -207,3 +207,5 @@ export function LandingPage() {
     </div>
   )
 }
+
+

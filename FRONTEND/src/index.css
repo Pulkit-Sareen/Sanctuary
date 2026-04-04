@@ -73,6 +73,17 @@
   }
 }
 
+@keyframes support-line-draw {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.7s ease-out forwards;
 }
@@ -107,4 +118,8 @@
 .cta-arrow {
   display: inline-block;
   animation: cta-arrow 1.6s ease-in-out infinite;
+}
+
+.support-line-draw {
+  animation: support-line-draw 1.1s ease-out forwards;
 }
