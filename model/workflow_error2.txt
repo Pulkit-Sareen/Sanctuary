@@ -1,0 +1,71 @@
+﻿============================= test session starts =============================
+collecting ... collected 53 items
+
+tests/test_engine.py::TestExtraction::test_sensory_visual PASSED         [  1%]
+tests/test_engine.py::TestExtraction::test_sensory_auditory PASSED       [  3%]
+tests/test_engine.py::TestExtraction::test_sensory_olfactory PASSED      [  5%]
+tests/test_engine.py::TestExtraction::test_sensory_tactile PASSED        [  7%]
+tests/test_engine.py::TestExtraction::test_emotion_extraction PASSED     [  9%]
+tests/test_engine.py::TestExtraction::test_physical_impact PASSED        [ 11%]
+tests/test_engine.py::TestExtraction::test_location_extraction PASSED    [ 13%]
+tests/test_engine.py::TestExtraction::test_chronology_extraction PASSED  [ 15%]
+tests/test_engine.py::TestExtraction::test_empty_text PASSED             [ 16%]
+tests/test_engine.py::TestExtraction::test_entities_object PASSED        [ 18%]
+tests/test_engine.py::TestDistressDetection::test_critical_distress PASSED [ 20%]
+tests/test_engine.py::TestDistressDetection::test_high_distress PASSED   [ 22%]
+tests/test_engine.py::TestDistressDetection::test_moderate_distress PASSED [ 24%]
+tests/test_engine.py::TestDistressDetection::test_low_distress PASSED    [ 26%]
+tests/test_engine.py::TestDistressDetection::test_no_distress PASSED     [ 28%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_critical PASSED [ 30%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_high PASSED [ 32%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_consecutive_moderate PASSED [ 33%]
+tests/test_engine.py::TestDistressDetection::test_no_pause_single_moderate PASSED [ 35%]
+tests/test_engine.py::TestTestimonyBuilder::test_add_fragment PASSED     [ 37%]
+tests/test_engine.py::TestTestimonyBuilder::test_integrate_extraction PASSED [ 39%]
+tests/test_engine.py::TestTestimonyBuilder::test_gap_analysis PASSED     [ 41%]
+tests/test_engine.py::TestTestimonyBuilder::test_strength_assessment PASSED [ 43%]
+tests/test_engine.py::TestTestimonyBuilder::test_deduplication PASSED    [ 45%]
+tests/test_engine.py::TestTestimonyBuilder::test_json_export PASSED      [ 47%]
+tests/test_engine.py::TestTestimonyBuilder::test_narrative_summary PASSED [ 49%]
+tests/test_engine.py::TestResponseGenerator::test_greeting PASSED        [ 50%]
+tests/test_engine.py::TestResponseGenerator::test_free_expression_response PASSED [ 52%]
+tests/test_engine.py::TestResponseGenerator::test_distress_response_critical PASSED [ 54%]
+tests/test_engine.py::TestResponseGenerator::test_distress_response_high PASSED [ 56%]
+tests/test_engine.py::TestResponseGenerator::test_cant_remember_response PASSED [ 58%]
+tests/test_engine.py::TestResponseGenerator::test_synthesis_offer PASSED [ 60%]
+tests/test_engine.py::TestConversationEngine::test_start_session PASSED  [ 62%]
+tests/test_engine.py::TestConversationEngine::test_process_message PASSED [ 64%]
+tests/test_engine.py::TestConversationEngine::test_multiple_messages PASSED [ 66%]
+tests/test_engine.py::TestConversationEngine::test_distress_handling PASSED [ 67%]
+tests/test_engine.py::TestConversationEngine::test_critical_distress PASSED [ 69%]
+tests/test_engine.py::TestConversationEngine::test_phase_transition_to_synthesis PASSED [ 71%]
+tests/test_engine.py::TestConversationEngine::test_grounding_request PASSED [ 73%]
+tests/test_engine.py::TestConversationEngine::test_export_testimony PASSED [ 75%]
+tests/test_engine.py::TestConversationEngine::test_get_testimony_dict PASSED [ 77%]
+tests/test_engine.py::TestConversationEngine::test_empty_message PASSED  [ 79%]
+tests/test_engine.py::TestConversationEngine::test_invalid_session PASSED [ 81%]
+tests/test_engine.py::TestConversationEngine::test_manual_advance_to_synthesis PASSED [ 83%]
+tests/test_engine.py::TestConversationEngine::test_finalize_session PASSED [ 84%]
+tests/test_engine.py::TestConversationEngine::test_full_workflow FAILED  [ 86%]
+
+================================== FAILURES ===================================
+__________________ TestConversationEngine.test_full_workflow __________________
+tests\test_engine.py:506: in test_full_workflow
+    assert response.phase != Phase.FREE_EXPRESSION
+E   assert <Phase.FREE_EXPRESSION: 'free_expression'> != <Phase.FREE_EXPRESSION: 'free_expression'>
+E    +  where <Phase.FREE_EXPRESSION: 'free_expression'> = EngineResponse(response_text="I appreciate your courage in sharing this. Everything you're telling me matters, and I'm carefully noting what you share.\n\n\nWhenever you feel you've shared what you'd like for now, just let me know. I can organize everything into a clear summary, or you can continue sharing ù there's no rush.", phase=<Phase.FREE_EXPRESSION: 'free_expression'>, distress_level=<DistressLevel.NONE: 'none'>, grounding_suggested=False, grounding_exercise=None, testimony_snapshot={'testimony_id': '337d1a2e-bc2f-4c7b-bc52-9dc2e7c5062c', 'session_metadata': {'created_at': '2026-04-04T11:59:48.901475', 'last_updated': '2026-04-04T11:59:48.938949', 'total_messages': 4, 'current_phase': <Phase.FREE_EXPRESSION: 'free_expression'>, 'phases_completed': []}, 'incident_details': {'type_of_trauma': None, 'estimated_date_range': {'earliest': None, 'latest': None, 'description': None}, 'duration': None, 'frequency': None}, 'sensory_details': {'visual': [{'type': <SensoryType.VISUAL: 'visual'>, 'description': 'It happened in a small room.', 'source_fragment_id': 1, 'confidence': 'medium'}, {'type': <SensoryType.VISUAL: 'visual'>, 'description': 'It was dark and cold.', 'source_fragme...ve a sense of what happened first, or what order some of these events occurred in?", 'Did something like this happen more than once, or was it a single event? Either answer is important to document.'], 'strength_indicators': ['Rich sensory detail provided (7 details across multiple senses).', 'Account provided across multiple statements, allowing for consistency assessment.', 'Timeline markers identified (1 chronological references).', 'Physical injuries/evidence documented, which can be corroborated with medical records.', 'Emotional responses documented, consistent with trauma responses described in clinical literature.', '1 location(s) identified in the account.']}, 'narrative_summary': 'This testimony was documented over 4 message(s). The following is a structured summary of the account provided. The survivor described sensory details including olfactory, tactile, visual experiences. 1 chronological marker(s) were identified in the account. 1 person(s) mentioned, with roles including: perpetrator. Location(s) referenced: a small room. Emotional responses documented include: fear, helplessness. 1 physical impact(s) documented.'}, clarification_questions=[], mode_used='offline').phase
+E    +  and   <Phase.FREE_EXPRESSION: 'free_expression'> = Phase.FREE_EXPRESSION
+============================== warnings summary ===============================
+trauma_ai\testimony_builder.py:35
+  D:\model\trauma_ai\testimony_builder.py:35: PytestCollectionWarning: cannot collect test class 'TestimonyBuilder' because it has a __init__ constructor (from: tests/test_engine.py)
+    class TestimonyBuilder:
+
+trauma_ai\models.py:252
+  D:\model\trauma_ai\models.py:252: PytestCollectionWarning: cannot collect test class 'Testimony' because it has a __init__ constructor (from: tests/test_engine.py)
+    class Testimony(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_engine.py::TestConversationEngine::test_full_workflow - ass...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+================== 1 failed, 45 passed, 2 warnings in 10.86s ==================

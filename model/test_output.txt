@@ -1,0 +1,58 @@
+﻿============================= test session starts =============================
+collecting ... collected 53 items
+
+tests/test_engine.py::TestExtraction::test_sensory_visual PASSED         [  1%]
+tests/test_engine.py::TestExtraction::test_sensory_auditory PASSED       [  3%]
+tests/test_engine.py::TestExtraction::test_sensory_olfactory PASSED      [  5%]
+tests/test_engine.py::TestExtraction::test_sensory_tactile PASSED        [  7%]
+tests/test_engine.py::TestExtraction::test_emotion_extraction PASSED     [  9%]
+tests/test_engine.py::TestExtraction::test_physical_impact PASSED        [ 11%]
+tests/test_engine.py::TestExtraction::test_location_extraction PASSED    [ 13%]
+tests/test_engine.py::TestExtraction::test_chronology_extraction PASSED  [ 15%]
+tests/test_engine.py::TestExtraction::test_empty_text PASSED             [ 16%]
+tests/test_engine.py::TestExtraction::test_entities_object PASSED        [ 18%]
+tests/test_engine.py::TestDistressDetection::test_critical_distress PASSED [ 20%]
+tests/test_engine.py::TestDistressDetection::test_high_distress PASSED   [ 22%]
+tests/test_engine.py::TestDistressDetection::test_moderate_distress PASSED [ 24%]
+tests/test_engine.py::TestDistressDetection::test_low_distress PASSED    [ 26%]
+tests/test_engine.py::TestDistressDetection::test_no_distress PASSED     [ 28%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_critical PASSED [ 30%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_high PASSED [ 32%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_consecutive_moderate PASSED [ 33%]
+tests/test_engine.py::TestDistressDetection::test_no_pause_single_moderate PASSED [ 35%]
+tests/test_engine.py::TestTestimonyBuilder::test_add_fragment PASSED     [ 37%]
+tests/test_engine.py::TestTestimonyBuilder::test_integrate_extraction PASSED [ 39%]
+tests/test_engine.py::TestTestimonyBuilder::test_gap_analysis PASSED     [ 41%]
+tests/test_engine.py::TestTestimonyBuilder::test_strength_assessment PASSED [ 43%]
+tests/test_engine.py::TestTestimonyBuilder::test_deduplication PASSED    [ 45%]
+tests/test_engine.py::TestTestimonyBuilder::test_json_export PASSED      [ 47%]
+tests/test_engine.py::TestTestimonyBuilder::test_narrative_summary PASSED [ 49%]
+tests/test_engine.py::TestResponseGenerator::test_greeting PASSED        [ 50%]
+tests/test_engine.py::TestResponseGenerator::test_free_expression_response PASSED [ 52%]
+tests/test_engine.py::TestResponseGenerator::test_distress_response_critical PASSED [ 54%]
+tests/test_engine.py::TestResponseGenerator::test_distress_response_high PASSED [ 56%]
+tests/test_engine.py::TestResponseGenerator::test_cant_remember_response PASSED [ 58%]
+tests/test_engine.py::TestResponseGenerator::test_synthesis_offer PASSED [ 60%]
+tests/test_engine.py::TestConversationEngine::test_start_session PASSED  [ 62%]
+tests/test_engine.py::TestConversationEngine::test_process_message PASSED [ 64%]
+tests/test_engine.py::TestConversationEngine::test_multiple_messages FAILED [ 66%]
+
+================================== FAILURES ===================================
+________________ TestConversationEngine.test_multiple_messages ________________
+tests\test_engine.py:386: in test_multiple_messages
+    assert testimony["session_metadata"]["total_messages"] == 3
+E   assert 2 == 3
+============================== warnings summary ===============================
+trauma_ai\testimony_builder.py:35
+  D:\model\trauma_ai\testimony_builder.py:35: PytestCollectionWarning: cannot collect test class 'TestimonyBuilder' because it has a __init__ constructor (from: tests/test_engine.py)
+    class TestimonyBuilder:
+
+trauma_ai\models.py:252
+  D:\model\trauma_ai\models.py:252: PytestCollectionWarning: cannot collect test class 'Testimony' because it has a __init__ constructor (from: tests/test_engine.py)
+    class Testimony(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_engine.py::TestConversationEngine::test_multiple_messages
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+============ 1 failed, 34 passed, 2 warnings in 105.51s (0:01:45) =============
