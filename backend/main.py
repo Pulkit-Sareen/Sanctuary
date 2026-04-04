@@ -11,8 +11,11 @@ import os
 from fastapi import WebSocket
 from pymongo import MongoClient # type: ignore
 from fastapi.middleware.cors import CORSMiddleware # type: ignore
+from routes.session import router as session_router
+
 
 app = FastAPI()
+app.include_router(session_router, prefix="/session")
 
 _cors = os.environ.get(
     "CORS_ORIGINS",
@@ -31,10 +34,15 @@ app.add_middleware(
 # DATABASE CONFIG
 # =========================
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://host.docker.internal:27017")
 client = MongoClient(MONGO_URI)
 db = client["trauma_db"]
 sessions_collection = db["sessions"]
+try:
+    client.admin.command('ping')
+    print("✅ MongoDB connected successfully")
+except Exception as e:
+    print("❌ MongoDB connection failed:", e)
 
 SAMPLE_QUESTIONS = [
     "Where did the incident occur?",
