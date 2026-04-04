@@ -1,0 +1,33 @@
+# Backend developer: MongoDB + frontend in Docker; run FastAPI on the host (venv / IDE).
+# API URL for the browser: http://localhost:8000 (your local uvicorn).
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data_backend_dev:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 8
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo_data_backend_dev:
