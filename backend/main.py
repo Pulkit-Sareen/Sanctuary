@@ -1,8 +1,6 @@
 # =========================
 # FASTAPI BACKEND (MVP)
 # =========================
-from routes.session import router as session_router
-
 from fastapi import FastAPI, UploadFile, File # type: ignore
 from pydantic import BaseModel # type: ignore
 from typing import Dict, Any
@@ -10,7 +8,7 @@ from datetime import datetime
 import uuid
 import shutil
 import os
-
+from fastapi import WebSocket
 from pymongo import MongoClient # type: ignore
 from fastapi.middleware.cors import CORSMiddleware # type: ignore
 
@@ -29,16 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(session_router)
-
 # =========================
 # DATABASE CONFIG
 # =========================
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
-db = client["testimony_db"]
+db = client["trauma_db"]
 sessions_collection = db["sessions"]
+
+SAMPLE_QUESTIONS = [
+    "Where did the incident occur?",
+    "When did this happen?",
+    "Who else was present there?",
+    "What happened right after this?",
+]
 
 # =========================
 # MOCK SERVICES (REPLACE LATER)
@@ -76,11 +79,15 @@ def mock_llm_service(data: Dict[str, Any]) -> Dict[str, Any]:
         # Add dummy detail
         updated_json["location"]["details"]["color"] = "red"
 
+    question_index = data.get("question_index", 0)
+    next_index = min(question_index + 1, len(SAMPLE_QUESTIONS) - 1)
+
     return {
         "updated_json": updated_json,
         "confidence": {"location": 0.7},
         "completeness_score": 0.5,
-        "next_question": "Can you describe it in more detail?"
+        "next_question": SAMPLE_QUESTIONS[next_index],
+        "next_question_index": next_index,
     }
 
 
@@ -91,10 +98,59 @@ def mock_llm_service(data: Dict[str, Any]) -> Dict[str, Any]:
 class StartSessionResponse(BaseModel):
     session_id: str
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: dict[str, WebSocket] = {}
+
+    async def connect(self, session_id: str, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections[session_id] = websocket
+
+    def disconnect(self, session_id: str):
+        self.active_connections.pop(session_id, None)
+
+    async def send_update(self, session_id: str, data: dict):
+        if session_id in self.active_connections:
+            await self.active_connections[session_id].send_json(data)
+
+manager = ConnectionManager()
 
 # =========================
 # ROUTES
 # =========================
+
+import asyncio
+
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(websocket: WebSocket, session_id: str):
+    await websocket.accept()  # ✅ accept FIRST (important)
+
+    try:
+        manager.active_connections[session_id] = websocket
+
+        # ✅ SAFELY fetch session
+        session = sessions_collection.find_one({"session_id": session_id})
+
+        if session:
+            await websocket.send_json({
+                "type": "question_update",
+                "question": session.get("current_question", "Please continue.")
+            })
+        else:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Session not found"
+            })
+
+        # ✅ keep connection alive
+        while True:
+            await asyncio.sleep(1)
+
+    except Exception as e:
+        print("WebSocket error:", e)
+
+    finally:
+        manager.disconnect(session_id)
 
 @app.post("/start-session", response_model=StartSessionResponse)
 def start_session():
@@ -105,7 +161,8 @@ def start_session():
         "created_at": datetime.utcnow(),
         "memory": {},  # structured JSON
         "history": [],
-        "current_question": "Where did the incident occur?"
+        "question_index": 0,
+        "current_question": SAMPLE_QUESTIONS[0],
     }
 
     sessions_collection.insert_one(session_data)
@@ -153,13 +210,15 @@ async def submit_answer(session_id: str, file: UploadFile = File(...)):
         "transcript": transcript,
         "emotion": emotion,
         "previous_json": session.get("memory", {}),
-        "question": session.get("current_question")
+        "question": session.get("current_question"),
+        "question_index": session.get("question_index", 0),
     }
 
     llm_output = mock_llm_service(llm_input)
 
     updated_json = llm_output["updated_json"]
     next_question = llm_output["next_question"]
+    next_question_index = llm_output["next_question_index"]
 
     # =========================
     # UPDATE DATABASE
@@ -169,7 +228,8 @@ async def submit_answer(session_id: str, file: UploadFile = File(...)):
         {
             "$set": {
                 "memory": updated_json,
-                "current_question": next_question
+                "current_question": next_question,
+                "question_index": next_question_index,
             },
             "$push": {
                 "history": {
@@ -184,11 +244,16 @@ async def submit_answer(session_id: str, file: UploadFile = File(...)):
     # delete temp file
     os.remove(file_location)
 
+    await manager.send_update(session_id, {
+    "type": "question_update",
+    "question": next_question
+})
     return {
         "transcript": transcript,
         "emotion": emotion,
         "updated_memory": updated_json,
-        "next_question": next_question
+        "next_question": next_question,
+        "status": "updated"
     }
 
 

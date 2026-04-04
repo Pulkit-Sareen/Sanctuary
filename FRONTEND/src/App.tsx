@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { LandingPage } from './pages/LandingPage'
-import { SharePage } from './pages/SharePage'
+import SharePage from './pages/SharePage'
 
 function App() {
   return (
