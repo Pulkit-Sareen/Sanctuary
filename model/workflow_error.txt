@@ -1,0 +1,33 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.0.2, pluggy-1.6.0 -- D:\model\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\model
+plugins: anyio-4.13.0
+collecting ... collected 15 items
+
+tests/test_engine.py::TestConversationEngine::test_start_session PASSED  [  6%]
+tests/test_engine.py::TestConversationEngine::test_process_message PASSED [ 13%]
+tests/test_engine.py::TestConversationEngine::test_multiple_messages PASSED [ 20%]
+tests/test_engine.py::TestConversationEngine::test_distress_handling PASSED [ 26%]
+tests/test_engine.py::TestConversationEngine::test_critical_distress PASSED [ 33%]
+tests/test_engine.py::TestConversationEngine::test_phase_transition_to_synthesis PASSED [ 40%]
+tests/test_engine.py::TestConversationEngine::test_grounding_request PASSED [ 46%]
+tests/test_engine.py::TestConversationEngine::test_export_testimony PASSED [ 53%]
+tests/test_engine.py::TestConversationEngine::test_get_testimony_dict PASSED [ 60%]
+tests/test_engine.py::TestConversationEngine::test_empty_message PASSED  [ 66%]
+tests/test_engine.py::TestConversationEngine::test_invalid_session PASSED [ 73%]
+tests/test_engine.py::TestConversationEngine::test_manual_advance_to_synthesis PASSED [ 80%]
+tests/test_engine.py::TestConversationEngine::test_finalize_session PASSED [ 86%]
+tests/test_engine.py::TestConversationEngine::test_full_workflow FAILED  [ 93%]
+tests/test_engine.py::TestConversationEngine::test_grounding_exercise_utility PASSED [100%]
+
+================================== FAILURES ===================================
+__________________ TestConversationEngine.test_full_workflow __________________
+tests\test_engine.py:506: in test_full_workflow
+    assert response.phase != Phase.FREE_EXPRESSION
+E   assert <Phase.FREE_EXPRESSION: 'free_expression'> != <Phase.FREE_EXPRESSION: 'free_expression'>
+E    +  where <Phase.FREE_EXPRESSION: 'free_expression'> = EngineResponse(response_text="I can see this is becoming very overwhelming. That's completely understandable \u2014 what you're describing is deeply difficult.\\n\\nLet's take a moment. Would you like to try a brief grounding exercise to help you feel more present? Or would you prefer to take a break and come back later?\\n\\nThere's no rush. Your well-being comes first.\\n\\n\U0001f33f **5-4-3-2-1 Senses**\\n\\nLet's try a grounding exercise together. Take a slow breath, and then:\\n\\n  \U0001f590 **5** \u2014 Name 5 things you can SEE right now.\\n  \u270b **4** \u2014 Name 4 things you can TOUCH or feel.\\n  \U0001f442 **3** \u2014 Name 3 things you can HEAR.\\n  \U0001f443 **2** \u2014 Name 2 things you can SMELL.\\n  \U0001f445 **1** \u2014 Name 1 thing you can TASTE.\\n\\nTake your time. There's no rush.", phase=<Phase.FREE_EXPRESSION: 'free_expression'>, distress_level=<DistressLevel.HIGH: 'high'>, grounding_suggested=True, grounding_exercise="Let's try a grounding exercise together. Take a slow breath, and then:\\n\\n  \U0001f590 **5** \u2014 Name 5 things you can SEE right now.\\n  \u270b **4** \u2014 Name 4 things you can TOUCH or feel.\\n  \U0001f442 **3** \u2014 Name 3 things you can HEAR.\\n  \U0001f443 **2** \u2014 Name 2 things you can SMELL.\\n  \U0001f445 **1** \u2014 Name 1 thing you can TASTE.\\n\\nTake your time. There's no rush.", testimony_snapshot=None, clarification_questions=[], mode_used='offline').phase
+E    +  and   <Phase.FREE_EXPRESSION: 'free_expression'> = Phase.FREE_EXPRESSION
+=========================== short test summary info ===========================
+FAILED tests/test_engine.py::TestConversationEngine::test_full_workflow - ass...
+======================== 1 failed, 14 passed in 10.52s ========================

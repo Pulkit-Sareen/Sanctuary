@@ -1,0 +1,256 @@
+{
+  "testimony_id": "b89ec0a1-f2ac-4c1a-9136-fff20bf90300",
+  "session_metadata": {
+    "created_at": "2026-04-04T13:29:41.695595",
+    "last_updated": "2026-04-04T13:29:42.982141",
+    "total_messages": 3,
+    "current_phase": "free_expression",
+    "phases_completed": []
+  },
+  "incident_details": {
+    "type_of_trauma": null,
+    "estimated_date_range": {
+      "earliest": null,
+      "latest": null,
+      "description": null
+    },
+    "duration": null,
+    "frequency": null
+  },
+  "sensory_details": {
+    "visual": [
+      {
+        "type": "visual",
+        "description": "It was so dark I could barely see.",
+        "source_fragment_id": 1,
+        "confidence": "medium"
+      },
+      {
+        "type": "visual",
+        "description": "There were shadows on the wall.",
+        "source_fragment_id": 1,
+        "confidence": "medium"
+      }
+    ],
+    "auditory": [],
+    "olfactory": [
+      {
+        "type": "olfactory",
+        "description": "I remember the smell of cigarettes.",
+        "source_fragment_id": 1,
+        "confidence": "medium"
+      }
+    ],
+    "tactile": [
+      {
+        "type": "tactile",
+        "description": "He grabbed my arm really hard.",
+        "source_fragment_id": 2,
+        "confidence": "medium"
+      },
+      {
+        "type": "tactile",
+        "description": "I could feel his grip tightening.",
+        "source_fragment_id": 2,
+        "confidence": "medium"
+      },
+      {
+        "type": "tactile",
+        "description": "I felt completely frozen.",
+        "source_fragment_id": 3,
+        "confidence": "medium"
+      }
+    ],
+    "gustatory": [],
+    "other": []
+  },
+  "chronology": [
+    {
+      "sequence_order": 1,
+      "description": "He grabbed my arm really hard.",
+      "time_reference": "",
+      "time_confidence": "uncertain",
+      "temporal_phase": "during_incident",
+      "source_fragment_ids": [
+        2
+      ]
+    },
+    {
+      "sequence_order": 3,
+      "description": "Later I noticed bruises on my wrists and arms.",
+      "time_reference": "",
+      "time_confidence": "uncertain",
+      "temporal_phase": "post_incident",
+      "source_fragment_ids": [
+        2
+      ]
+    },
+    {
+      "sequence_order": 1,
+      "description": "It was sometime last December, I think around midnight.",
+      "time_reference": "december, midnight, last December",
+      "time_confidence": "approximate",
+      "temporal_phase": "unknown",
+      "source_fragment_ids": [
+        3
+      ]
+    },
+    {
+      "sequence_order": 3,
+      "description": "I couldn't move.",
+      "time_reference": "",
+      "time_confidence": "uncertain",
+      "temporal_phase": "during_incident",
+      "source_fragment_ids": [
+        3
+      ]
+    }
+  ],
+  "involved_parties": [
+    {
+      "id": "person_b425ff6b",
+      "identifier": "he",
+      "known_name": null,
+      "role": "perpetrator",
+      "physical_description": null,
+      "relationship": null,
+      "additional_details": null,
+      "source_fragment_ids": [
+        2
+      ]
+    }
+  ],
+  "locations": [],
+  "emotional_context": [
+    {
+      "emotion": "fear",
+      "description": "I was terrified.",
+      "associated_event": null,
+      "source_fragment_id": 3
+    },
+    {
+      "emotion": "fear",
+      "description": "I felt completely frozen.",
+      "associated_event": null,
+      "source_fragment_id": 3
+    }
+  ],
+  "physical_impact": [
+    {
+      "description": "Later I noticed bruises on my wrists and arms.",
+      "body_area": "arms",
+      "severity": null,
+      "medical_attention": null,
+      "source_fragment_id": 2
+    }
+  ],
+  "raw_fragments": [
+    {
+      "id": 1,
+      "text": "I remember the smell of cigarettes. It was so dark I could barely see. There were shadows on the wall.",
+      "timestamp": "2026-04-04T13:29:42.943339",
+      "phase": "free_expression",
+      "assistant_prompt": "",
+      "extracted_entities": {
+        "persons": [],
+        "locations": [],
+        "dates": [],
+        "times": [],
+        "sensory": [
+          "see",
+          "smell"
+        ],
+        "emotions": [],
+        "physical": []
+      }
+    },
+    {
+      "id": 2,
+      "text": "He grabbed my arm really hard. I could feel his grip tightening. Later I noticed bruises on my wrists and arms.",
+      "timestamp": "2026-04-04T13:29:42.963492",
+      "phase": "free_expression",
+      "assistant_prompt": "Thank you for sharing that with me. What you've described is important, and I want you to know that I hear you.\n\nI notice you've shared some sensory details — things you experienced. These kinds of details are very valuable and help create a clear record. If any other sensory memories come to mind, please share them whenever they surface.\n\nDo you remember if this happened on a particular day of the week, or around any event or occasion you can recall?",
+      "extracted_entities": {
+        "persons": [],
+        "locations": [],
+        "dates": [],
+        "times": [],
+        "sensory": [
+          "feel"
+        ],
+        "emotions": [],
+        "physical": [
+          "bruises"
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "text": "It was sometime last December, I think around midnight. I was terrified. I couldn't move. I felt completely frozen.",
+      "timestamp": "2026-04-04T13:29:42.982141",
+      "phase": "free_expression",
+      "assistant_prompt": "Thank you for trusting me with this. I want you to know that fragmented memories are a completely normal response to what you've been through. Every detail you share helps build the full picture.\n\nI notice you've shared some sensory details — things you experienced. These kinds of details are very valuable and help create a clear record. If any other sensory memories come to mind, please share them whenever they surface.\n\nYou've mentioned someone in your account. Any details about them — even small things like how they spoke or what they were wearing — can be helpful. But only share what feels safe.",
+      "extracted_entities": {
+        "persons": [],
+        "locations": [],
+        "dates": [
+          "last December"
+        ],
+        "times": [],
+        "sensory": [
+          "felt"
+        ],
+        "emotions": [
+          "fear"
+        ],
+        "physical": []
+      }
+    }
+  ],
+  "legal_analysis": {
+    "identified_gaps": [
+      {
+        "category": "location",
+        "description": "No specific location has been identified.",
+        "importance": "high",
+        "addressed": false,
+        "clarification_question": "Could you describe the space where this happened? Any details — the size, whether it was indoors or outdoors, any distinctive features — can help."
+      },
+      {
+        "category": "perpetrator_description",
+        "description": "Perpetrator mentioned but physical description is limited.",
+        "importance": "medium",
+        "addressed": false,
+        "clarification_question": "Do you remember anything about how they spoke — their voice, accent, or specific words they used?"
+      },
+      {
+        "category": "witness",
+        "description": "No witnesses have been mentioned.",
+        "importance": "medium",
+        "addressed": false,
+        "clarification_question": "Was anyone else present or nearby when this happened? Even someone you heard but didn't see?"
+      },
+      {
+        "category": "frequency",
+        "description": "It's unclear if this was a single event or repeated.",
+        "importance": "medium",
+        "addressed": false,
+        "clarification_question": "Did something like this happen more than once, or was it a single event? Either answer is important to document."
+      }
+    ],
+    "pending_clarifications": [
+      "Could you describe the space where this happened? Any details — the size, whether it was indoors or outdoors, any distinctive features — can help.",
+      "Do you remember anything about how they spoke — their voice, accent, or specific words they used?",
+      "Was anyone else present or nearby when this happened? Even someone you heard but didn't see?",
+      "Did something like this happen more than once, or was it a single event? Either answer is important to document."
+    ],
+    "strength_indicators": [
+      "Rich sensory detail provided (6 details across multiple senses).",
+      "Account provided across multiple statements, allowing for consistency assessment.",
+      "Timeline markers identified (4 chronological references).",
+      "Physical injuries/evidence documented, which can be corroborated with medical records.",
+      "Emotional responses documented, consistent with trauma responses described in clinical literature."
+    ]
+  },
+  "narrative_summary": "This testimony was documented over 3 message(s). The following is a structured summary of the account provided. The survivor described sensory details including tactile, visual, olfactory experiences. 4 chronological marker(s) were identified in the account. 1 person(s) mentioned, with roles including: perpetrator. Emotional responses documented include: fear. 1 physical impact(s) documented."
+}

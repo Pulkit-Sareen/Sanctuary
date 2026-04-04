@@ -1,0 +1,52 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.0.2, pluggy-1.6.0 -- D:\model\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\model
+plugins: anyio-4.13.0
+collecting ... collected 53 items
+
+tests/test_engine.py::TestExtraction::test_sensory_visual PASSED         [  1%]
+tests/test_engine.py::TestExtraction::test_sensory_auditory PASSED       [  3%]
+tests/test_engine.py::TestExtraction::test_sensory_olfactory PASSED      [  5%]
+tests/test_engine.py::TestExtraction::test_sensory_tactile PASSED        [  7%]
+tests/test_engine.py::TestExtraction::test_emotion_extraction PASSED     [  9%]
+tests/test_engine.py::TestExtraction::test_physical_impact PASSED        [ 11%]
+tests/test_engine.py::TestExtraction::test_location_extraction PASSED    [ 13%]
+tests/test_engine.py::TestExtraction::test_chronology_extraction PASSED  [ 15%]
+tests/test_engine.py::TestExtraction::test_empty_text PASSED             [ 16%]
+tests/test_engine.py::TestExtraction::test_entities_object PASSED        [ 18%]
+tests/test_engine.py::TestDistressDetection::test_critical_distress PASSED [ 20%]
+tests/test_engine.py::TestDistressDetection::test_high_distress PASSED   [ 22%]
+tests/test_engine.py::TestDistressDetection::test_moderate_distress PASSED [ 24%]
+tests/test_engine.py::TestDistressDetection::test_low_distress PASSED    [ 26%]
+tests/test_engine.py::TestDistressDetection::test_no_distress PASSED     [ 28%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_critical PASSED [ 30%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_high PASSED [ 32%]
+tests/test_engine.py::TestDistressDetection::test_should_pause_consecutive_moderate PASSED [ 33%]
+tests/test_engine.py::TestDistressDetection::test_no_pause_single_moderate PASSED [ 35%]
+tests/test_engine.py::TestTestimonyBuilder::test_add_fragment FAILED     [ 37%]
+
+================================== FAILURES ===================================
+___________________ TestTestimonyBuilder.test_add_fragment ____________________
+tests\test_engine.py:212: in test_add_fragment
+    builder.add_raw_fragment("test text", 1, Phase.FREE_EXPRESSION, entities)
+trauma_ai\testimony_builder.py:68: in add_raw_fragment
+    fragment = RawFragment(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RawFragment
+E   id
+E     Field required [type=missing, input_value={'fragment_id': 1, 'text'...otions=[], physical=[])}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/missing
+============================== warnings summary ===============================
+trauma_ai\testimony_builder.py:35
+  D:\model\trauma_ai\testimony_builder.py:35: PytestCollectionWarning: cannot collect test class 'TestimonyBuilder' because it has a __init__ constructor (from: tests/test_engine.py)
+    class TestimonyBuilder:
+
+trauma_ai\models.py:253
+  D:\model\trauma_ai\models.py:253: PytestCollectionWarning: cannot collect test class 'Testimony' because it has a __init__ constructor (from: tests/test_engine.py)
+    class Testimony(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_engine.py::TestTestimonyBuilder::test_add_fragment - pydant...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+================== 1 failed, 19 passed, 2 warnings in 2.45s ===================

@@ -6,6 +6,7 @@ class ConversationItem(BaseModel):
     answer_text: str
     emotion: str
     timestamp: Optional[str]
+    raw_convo: str
 
 class Session(BaseModel):
     conversation: List[ConversationItem] = []
