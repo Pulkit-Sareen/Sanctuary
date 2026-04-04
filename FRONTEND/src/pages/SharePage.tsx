@@ -142,6 +142,8 @@ function SharePage() {
           }}
         />
 
+        
+
         <button
           onClick={submitMessage}
           disabled={!sessionId || isSubmitting}
