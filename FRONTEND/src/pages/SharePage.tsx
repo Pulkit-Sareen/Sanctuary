@@ -8,8 +8,13 @@ function SharePage() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [question, setQuestion] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordingError, setRecordingError] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
   const startedRef = useRef(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const mediaStreamRef = useRef<MediaStream | null>(null)
 
   // Start session (guarded for React StrictMode in development)
   useEffect(() => {
@@ -87,15 +92,13 @@ function SharePage() {
     fetchInitial()
   }, [sessionId])
 
-  // Send dummy audio
-  const sendDummyAudio = async () => {
+  const submitAudioBlob = async (blob: Blob) => {
     if (!sessionId) return
 
     setIsSubmitting(true)
     try {
-      const blob = new Blob(['dummy audio'], { type: 'audio/wav' })
       const formData = new FormData()
-      formData.append('file', blob, 'audio.wav')
+      formData.append('file', blob, 'audio.webm')
 
       const res = await fetch(`${BASE_URL}/submit-answer/${sessionId}`, {
         method: 'POST',
@@ -113,6 +116,71 @@ function SharePage() {
     }
   }
 
+  const startRecording = async () => {
+    if (isRecording || isSubmitting) return
+    setRecordingError('')
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setRecordingError('Microphone recording is not supported in this browser.')
+      return
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaStreamRef.current = stream
+      audioChunksRef.current = []
+
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.start()
+      setIsRecording(true)
+    } catch (err) {
+      console.error('Recording start error:', err)
+      setRecordingError('Microphone permission denied or unavailable.')
+    }
+  }
+
+  const stopRecordingAndSubmit = () => {
+    const mediaRecorder = mediaRecorderRef.current
+    if (!mediaRecorder || !isRecording) return
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+      audioChunksRef.current = []
+      setIsRecording(false)
+
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+      mediaStreamRef.current = null
+      mediaRecorderRef.current = null
+
+      if (audioBlob.size === 0) {
+        setRecordingError('No audio captured. Please try again.')
+        return
+      }
+
+      await submitAudioBlob(audioBlob)
+    }
+
+    mediaRecorder.stop()
+  }
+
+  useEffect(() => {
+    return () => {
+      const recorder = mediaRecorderRef.current
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stop()
+      }
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+    }
+  }, [])
+
   return (
     <div
       style={{
@@ -128,17 +196,36 @@ function SharePage() {
     >
       <div style={{ maxWidth: '800px', width: '100%' }}>
         <div style={{ marginBottom: '16px' }}>{question || 'Loading...'}</div>
-        <button
-          onClick={sendDummyAudio}
-          disabled={!sessionId || isSubmitting}
-          style={{
-            padding: '10px 18px',
-            fontSize: '16px',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button
+            onClick={startRecording}
+            disabled={!sessionId || isSubmitting || isRecording}
+            style={{
+              padding: '10px 18px',
+              fontSize: '16px',
+              cursor:
+                !sessionId || isSubmitting || isRecording ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {isRecording ? 'Recording...' : 'Start Recording'}
+          </button>
+          <button
+            onClick={stopRecordingAndSubmit}
+            disabled={!isRecording || isSubmitting}
+            style={{
+              padding: '10px 18px',
+              fontSize: '16px',
+              cursor: !isRecording || isSubmitting ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {isSubmitting ? 'Submitting...' : 'Stop & Submit'}
+          </button>
+        </div>
+        {recordingError ? (
+          <div style={{ marginTop: '10px', fontSize: '14px', color: '#b00020' }}>
+            {recordingError}
+          </div>
+        ) : null}
       </div>
     </div>
   )
