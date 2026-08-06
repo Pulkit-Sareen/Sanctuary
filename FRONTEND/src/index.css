@@ -1,0 +1,179 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Montserrat', system-ui, sans-serif;
+  --font-hero: 'Montserrat', 'Inter', sans-serif;
+  /* Original theme tokens (kept for legacy components) */
+  --color-sanctuary-blue: #afcbff;
+  --color-sanctuary-warm: #f5e9e2;
+  --color-sanctuary-lavender: #cdb4db;
+  --color-sanctuary-text: #333333;
+  --color-sanctuary-muted: #5a5a5a;
+  --color-sanctuary-neutral: #f7f7f7;
+  --color-sanctuary-teal: #a8dadc;
+  --color-sanctuary-card: #faf8f6;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply m-0 min-h-svh font-sans;
+    font-feature-settings: 'kern' 1;
+    background: linear-gradient(to bottom, #405847, #5E7C63, #7b9980);
+    background-attachment: fixed;
+    color: #111111;
+  }
+
+  #root {
+    @apply min-h-svh w-full max-w-none;
+  }
+}
+
+/* Translucent Noise Texture */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.sanctuary-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(246, 241, 232, 0.58) 0%, rgba(246, 241, 232, 0.22) 30%, transparent 58%),
+    radial-gradient(ellipse at 18% 78%, rgba(32, 45, 35, 0.16) 0%, transparent 42%),
+    radial-gradient(ellipse at 84% 70%, rgba(49, 69, 53, 0.14) 0%, transparent 40%);
+}
+
+/* Glass Panels */
+.glass-card {
+  background: rgba(246, 241, 232, 0.95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 16px 45px rgba(24, 38, 28, 0.14);
+}
+
+.glass-banner {
+  background: rgba(246, 241, 232, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Utilities */
+.text-accent-cream {
+  color: #E4D68C;
+}
+
+@keyframes drift-up {
+  0% { transform: translateY(100vh) scale(0.8); opacity: 0; }
+  10% { opacity: 0.2; }
+  90% { opacity: 0.2; }
+  100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+}
+
+.particle {
+  position: fixed;
+  border-radius: 50%;
+  background: #F6F1E8;
+  pointer-events: none;
+  z-index: 1;
+  animation: drift-up 20s linear infinite;
+  will-change: transform, opacity;
+}
+
+/* ===== Legacy utilities (kept for original SharePage + landing) ===== */
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wave-bar {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes cta-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-delay-100 {
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-delay-300 {
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.wave-bar {
+  transform-origin: bottom;
+  animation: wave-bar 0.9s ease-in-out infinite;
+}
+
+.cta-arrow {
+  display: inline-block;
+  animation: cta-arrow 1.6s ease-in-out infinite;
+}
