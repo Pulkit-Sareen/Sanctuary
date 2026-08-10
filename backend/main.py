@@ -30,11 +30,14 @@ _cors = os.environ.get(
     "https://sanctuary-gold.vercel.app,https://sanctuary-git-main-pulkit0208.vercel.app,http://localhost:5173,http://127.0.0.1:5173",
 ).split(",")
 _cors_origins = [o.strip() for o in _cors if o.strip()]
+allow_origin_regex = r"^https://sanctuary(?:-[a-z0-9-]+)?\.vercel\.app$"
+if "*" in _cors_origins:
+    _cors_origins = []
+    allow_origin_regex = r".*"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    # Permit Vercel preview deployments for this Sanctuary project.
-    allow_origin_regex=r"https://sanctuary(?:-[a-z0-9-]+)?\.vercel\.app",
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
