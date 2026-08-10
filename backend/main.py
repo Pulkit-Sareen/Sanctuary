@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-import sys
 import tempfile
 import uuid
 from datetime import datetime
@@ -13,12 +12,6 @@ from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 # from pymongo import MongoClient
-
-# Make local model package importable: /model/trauma_ai
-ROOT_DIR = Path(__file__).resolve().parents[1]
-MODEL_DIR = ROOT_DIR / "model"
-if MODEL_DIR.exists():
-    sys.path.insert(0, str(MODEL_DIR))
 
 ConversationEngine = None
 EngineConfig = None
@@ -34,12 +27,14 @@ app = FastAPI()
 
 _cors = os.environ.get(
     "CORS_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173",
+    "https://sanctuary-gold.vercel.app,https://sanctuary-git-main-pulkit0208.vercel.app,http://localhost:5173,http://127.0.0.1:5173",
 ).split(",")
 _cors_origins = [o.strip() for o in _cors if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
+    # Permit Vercel preview deployments for this Sanctuary project.
+    allow_origin_regex=r"https://sanctuary(?:-[a-z0-9-]+)?\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
