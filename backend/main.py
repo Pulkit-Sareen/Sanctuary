@@ -81,9 +81,9 @@ if ConversationEngine and EngineConfig:
         engine = ConversationEngine(
             EngineConfig(
                 mode=os.environ.get("TRAUMA_ENGINE_MODE", "offline"),
-                llm_provider=os.environ.get("LLM_PROVIDER", "ollama"),
+                llm_provider=os.environ.get("LLM_PROVIDER", "groq"),
                 llm_api_key=os.environ.get("LLM_API_KEY"),
-                llm_model=os.environ.get("LLM_MODEL", "llama3.1"),
+                llm_model=os.environ.get("LLM_MODEL", "openai/gpt-oss-120b"),
                 ollama_url=os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate"),
             )
         )

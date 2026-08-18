@@ -126,7 +126,7 @@ class ConversationEngine:
                 "Content-Type": "application/json"
             }
             payload = {
-                "model": "llama-3.3-70b-versatile",
+                "model": self.config.llm_model,
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.5,
             }
